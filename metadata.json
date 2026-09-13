@@ -1,0 +1,6 @@
+{
+  "name": "স্মার্ট পোল্ট্রি",
+  "description": "স্মার্ট পোল্ট্রি - আপনার খামারের আধুনিক ডিজিটাল হিসাব ও ব্যবস্থাপনা",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

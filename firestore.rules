@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Deny All Catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // User Profile Validation
+    function isValidUser(data) {
+      return data.userId is string && data.userId.size() <= 128 &&
+             (!('email' in data) || (data.email is string && data.email.size() <= 150)) &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 50)) &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100)) &&
+             (!('farmName' in data) || (data.farmName is string && data.farmName.size() <= 100));
+    }
+
+    // Farm Records Validation
+    function isValidFarmData(data) {
+      return data.userId is string && data.userId.size() <= 128 &&
+             (!('settings' in data) || data.settings is map) &&
+             (!('batches' in data) || data.batches is list) &&
+             (!('expenses' in data) || data.expenses is list) &&
+             (!('chickenSales' in data) || data.chickenSales is list) &&
+             (!('eggStock' in data) || data.eggStock is list) &&
+             (!('eggSales' in data) || data.eggSales is list) &&
+             (!('otherRevenues' in data) || data.otherRevenues is list) &&
+             (!('deadBirds' in data) || data.deadBirds is list) &&
+             (!('dealers' in data) || data.dealers is list) &&
+             (!('buyers' in data) || data.buyers is list) &&
+             (!('vaccines' in data) || data.vaccines is list) &&
+             (!('farmMode' in data) || (data.farmMode is string && data.farmMode.size() <= 20));
+    }
+
+    // Connection testing endpoint for health check
+    match /test/connection {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // User profiles - only the authenticated owner can access and manage
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId &&
+                      isValidUser(incoming()) && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId &&
+                      isValidUser(incoming()) && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+    }
+
+    // Farm records for multi-device sync
+    match /farms/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(userId) && request.auth.uid == userId &&
+                      isValidFarmData(incoming()) && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(userId) && request.auth.uid == userId &&
+                      isValidFarmData(incoming()) && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+    }
+  }
+}

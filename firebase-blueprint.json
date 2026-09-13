@@ -1,0 +1,114 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile information for Smart Poultry farmer",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the user"
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address or generated phone identifier"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Farmer contact phone number"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Farm owner name"
+        },
+        "farmName": {
+          "type": "string",
+          "description": "Name of the poultry farm"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation ISO timestamp or server timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp"
+        }
+      },
+      "required": ["userId"]
+    },
+    "FarmData": {
+      "title": "Farm Data Records",
+      "description": "Synchronized farm records including batches, expenses, sales, inventory, and ledgers",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID"
+        },
+        "settings": {
+          "type": "object",
+          "description": "Farm configuration and profile settings"
+        },
+        "batches": {
+          "type": "array",
+          "description": "List of flock batches"
+        },
+        "expenses": {
+          "type": "array",
+          "description": "List of expense records"
+        },
+        "chickenSales": {
+          "type": "array",
+          "description": "List of live bird sales records"
+        },
+        "eggStock": {
+          "type": "array",
+          "description": "List of daily egg production stock records"
+        },
+        "eggSales": {
+          "type": "array",
+          "description": "List of egg sales records"
+        },
+        "otherRevenues": {
+          "type": "array",
+          "description": "List of other miscellaneous revenue records"
+        },
+        "deadBirds": {
+          "type": "array",
+          "description": "Flock mortality records"
+        },
+        "dealers": {
+          "type": "array",
+          "description": "Supplier dealer ledgers"
+        },
+        "buyers": {
+          "type": "array",
+          "description": "Customer buyer ledgers"
+        },
+        "vaccines": {
+          "type": "array",
+          "description": "Flock vaccination schedules"
+        },
+        "farmMode": {
+          "type": "string",
+          "description": "Active farm mode (broiler or layer)"
+        },
+        "lastSyncedAt": {
+          "type": "string",
+          "description": "Timestamp of last synchronization"
+        }
+      },
+      "required": ["userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Individual farmer profile document strictly secured by userId"
+    },
+    "/farms/{userId}": {
+      "schema": "FarmData",
+      "description": "Complete cloud-synchronized poultry farm records collection for multi-device sync"
+    }
+  }
+}
